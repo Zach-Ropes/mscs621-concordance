@@ -1,0 +1,207 @@
+openapi: 3.0.0
+info:
+  title: MSCS621 Concordance Assignment 4 API
+  description: Modification of Assignment 3 concordance API
+  contact:
+    email: christopher.petrucelli1@marist.edu
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: "1.1"
+servers:
+- url: https://virtserver.swaggerhub.com/mscs721/concordance/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: analysis
+  description: Operations available for text analysis
+paths:
+  /analyze:
+    post:
+      tags:
+      - analysis
+      summary: Calculate
+      description: Post text to generate concordance
+      operationId: get_concordance
+      parameters:
+      - name: save
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      - name: compute
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      requestBody:
+        description: Text to be analyzed
+        content:
+          text/plain:
+            schema:
+              type: string
+            example: The brown fox jumped over the brown log
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/result'
+        "400":
+          description: invalid input, object invalid
+      x-openapi-router-controller: swagger_server.controllers.analysis_controller
+  /locate:
+    post:
+      tags:
+      - locate
+      summary: Find tokens
+      description: Post text to discover token locations within the string
+      operationId: locate_token
+      parameters:
+      - name: save
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      - name: compute
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      requestBody:
+        description: Text to be analyzed
+        content:
+          text/plain:
+            schema:
+              type: string
+            example: The brown fox jumped over the brown log
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/locateResult'
+        "400":
+          description: Invalid input, object invalid
+      x-openapi-router-controller: swagger_server.controllers.locate_controller
+components:
+  schemas:
+    result:
+      required:
+      - concordance
+      - input
+      type: object
+      properties:
+        concordance:
+          type: array
+          example:
+          - token: brown
+            count: 2
+          - token: fox
+            count: 1
+          - token: jumped
+            count: 1
+          - token: log
+            count: 1
+          - token: over
+            count: 1
+          - token: the
+            count: 1
+          items:
+            $ref: '#/components/schemas/result_concordance'
+        input:
+          type: string
+          example: The brown fox jumped over the brown log
+      example:
+        input: The brown fox jumped over the brown log
+        concordance:
+        - token: brown
+          count: 2
+        - token: fox
+          count: 1
+        - token: jumped
+          count: 1
+        - token: log
+          count: 1
+        - token: over
+          count: 1
+        - token: the
+          count: 1
+    locateResult:
+      required:
+      - found
+      type: object
+      properties:
+        found:
+          type: array
+          example:
+          - token: brown
+            locations:
+            - 1
+            - 6
+          - token: fox
+            locations:
+            - 2
+          - token: jumped
+            locations:
+            - 3
+          - token: log
+            locations:
+            - 7
+          - token: over
+            locations:
+            - 4
+          - token: the
+            locations:
+            - 0
+            - 5
+          items:
+            $ref: '#/components/schemas/locateResult_found'
+      example:
+        found:
+        - token: brown
+          locations:
+          - 1
+          - 6
+        - token: fox
+          locations:
+          - 2
+        - token: jumped
+          locations:
+          - 3
+        - token: log
+          locations:
+          - 7
+        - token: over
+          locations:
+          - 4
+        - token: the
+          locations:
+          - 0
+          - 5
+    result_concordance:
+      type: object
+      properties:
+        token:
+          type: string
+        count:
+          type: integer
+    locateResult_found:
+      type: object
+      properties:
+        token:
+          type: string
+        locations:
+          type: array
+          items:
+            type: integer
+
